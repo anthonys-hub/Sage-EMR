@@ -3,6 +3,7 @@ const dotenv = require('dotenv')
 const cors = require('cors')
 const pool = require('./db/db.js')
 const auth = require('./routes/auth.js')
+const users = require('./routes/users.js')
 
 
 
@@ -15,6 +16,8 @@ app.use(cors())
 app.use(express.json())
 
 app.use('/api/auth', auth)
+app.use('/api/users', users)
+
 
 
 
