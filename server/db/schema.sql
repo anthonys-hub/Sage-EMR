@@ -34,12 +34,12 @@ CREATE TABLE patients (
     email TEXT UNIQUE  NOT NULL ,
     dob DATE NOT NULL,
     Address VARCHAR(40) NOT NULL,
-    mobile_phone VARCHAR(10) NOT NULL,
-    hoeme_phone VARCHAR(10) NOT NULL,
+    mobile_phone VARCHAR(20) NOT NULL,
+    home_phone VARCHAR(20) NOT NULL,
     marriage_status VARCHAR(10) NOT NULL,
     title VARCHAR(10) NOT NULL,
-    social_security VARCHAR(10) NOT NULL,
-    emergency_contact VARCHAR(50) NOT NULL
+    social_security VARCHAR(11) NOT NULL,
+    emergency_contact VARCHAR(100) NOT NULL
 
 );
 
