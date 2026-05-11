@@ -15,12 +15,8 @@ router.get('/:id', authMiddleware, async (req, res) => {
     catch (err) {
         console.log(err)
         return res.status(500).json({ message: 'Patient not found!' })
-
-
     }
-
 }
-
 )
 
 router.post('/', authMiddleware, async (req, res) => {
