@@ -23,7 +23,7 @@ CREATE TABLE users (
 CREATE TABLE doctors (
     doctor_id SERIAL PRIMARY KEY,
     NPI VARCHAR(10) NOT NULL,
-    speciality VARCHAR(20),
+    specialty VARCHAR(20),
     user_id INT REFERENCES users(user_id) NOT NULL
 );
 
