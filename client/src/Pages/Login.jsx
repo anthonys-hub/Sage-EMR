@@ -3,7 +3,9 @@ import { IoShieldCheckmarkOutline } from "react-icons/io5";
 import { RiHealthBookFill } from "react-icons/ri";
 import { FaArrowRight } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
-
+import { useState } from "react";
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
 
 
@@ -11,6 +13,30 @@ import { MdEmail } from "react-icons/md";
 
 
 export default function Login() {
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const navigate = useNavigate()
+
+    function handleSubmit(e) {
+        e.preventDefault()
+        axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, { email, password })
+            .then(res => {
+                if (!res.data.token) {
+                    alert(res.data.message)
+                    return
+                }
+                localStorage.setItem('token', res.data.token)
+                localStorage.setItem('name', res.data.name)
+                navigate('/')
+
+            })
+
+
+    }
+
+
+
+
     return (
         <div className="flex h-screen bg-[#F4F6FB]">
 
@@ -53,34 +79,36 @@ export default function Login() {
                 <div className="flex flex-col flex-1 p-10">
 
                     <div className=" flex flex-col justify-center">
-                        <h1 className="text-3xl font-semibold">Welcome Back!</h1>
-                        <p className="mt-2">Enter your credentials to continue</p>
+                        <h1 className="text-3xl font-semibold text-[#7AAE9E]">Welcome Back!</h1>
+                        <p className="mt-2 text-[#7AAE9E]">Enter your credentials to continue</p>
 
 
 
 
-                        <div className="mt-20">
+                        <div className="mt-30">
 
 
-                            <form className="flex flex-col">
+                            <form onSubmit={handleSubmit} className="flex flex-col">
                                 <label className="text-gray-700">Professional Email</label>
                                 <input
                                     className="border border-gray-300 rounded-lg mt-2 py-3 outline-gray-400 bg-gray-100 h-15  pl-3  text-gray-700"
                                     placeholder="doctor@gmail.com"
-
-
                                     type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
 
                                 />
-                                <label className="mt-10 text-gray-700">Security Password</label>
+
+                                <label className="mt-5 text-gray-700">Security Password</label>
                                 <input
                                     className="border border-gray-300 rounded-lg mt-2 bg-gray-100  outline-gray-400 h-15  py-3 pl-3  text-gray-700"
                                     placeholder="password"
-
                                     type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
                                 />
 
-                                <button className="bg-[#7AAE9E] mt-15 rounded-full h-15 shadow-md text-white font-bold flex items-center justify-center gap-2">
+                                <button className="bg-[#7AAE9E] cursor-pointer hover:bg-[#5f9585] mt-10 rounded-full h-15 shadow-md text-white font-bold flex items-center justify-center gap-2">
                                     Sign Into Sage EMR
                                     <FaArrowRight />
                                 </button>
