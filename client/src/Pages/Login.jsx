@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
-
+console.log(import.meta.env.VITE_API_URL)
 
 
 
@@ -27,7 +27,7 @@ export default function Login() {
                 }
                 localStorage.setItem('token', res.data.token)
                 localStorage.setItem('name', res.data.name)
-                navigate('/')
+                navigate('/schedule')
 
             })
 
@@ -118,7 +118,7 @@ export default function Login() {
                             </form>
 
                             <div className="mt-30">
-                                <hr class="h-px bg-gray-200 border-0"></hr>
+                                <hr className="h-px bg-gray-200 border-0"></hr>
                                 <div className="flex flex-row gap-5 mt-5">
                                     <p className="text-gray-500">Privacy Policy</p>
                                     <p className="text-gray-500">Terms of Service</p>
