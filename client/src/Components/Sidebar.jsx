@@ -6,6 +6,7 @@ import { GoPersonFill } from "react-icons/go";
 import { CiMedicalClipboard } from "react-icons/ci";
 import { IoIosStats } from "react-icons/io";
 import { CiSettings } from "react-icons/ci";
+import Header from "./Header";
 
 
 
@@ -36,6 +37,7 @@ export default function Sidebar() {
             </div >
 
             < div className="flex-1 overflow-auto relative" >
+                <Header />
                 <Outlet />
             </div >
         </div >

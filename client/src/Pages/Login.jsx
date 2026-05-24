@@ -26,7 +26,8 @@ export default function Login() {
                     return
                 }
                 localStorage.setItem('token', res.data.token)
-                localStorage.setItem('name', res.data.name)
+                localStorage.setItem('name', `${res.data.first} ${res.data.last}`)
+                localStorage.setItem('role', res.data.role)
                 navigate('/schedule')
 
             })
