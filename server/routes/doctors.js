@@ -19,6 +19,21 @@ router.get('/:id', authMiddleware, requireAdmin, async (req, res) => {
 }
 )
 
+router.get('/', authMiddleware, async (req, res) => {
+
+    try {
+        const result = await pool.query('SELECT doctors.*, users.first_name, users.last_name FROM doctors JOIN users ON doctors.user_id = users.user_id')
+        const doctors = result.rows
+        return res.status(200).json(doctors)
+    }
+
+    catch (err) {
+        console.log(err)
+        return res.status(500).json({ message: 'Doctors not found!' })
+    }
+}
+)
+
 
 router.post('/', authMiddleware, requireAdmin, async (req, res) => {
     try {

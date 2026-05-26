@@ -3,7 +3,7 @@ export default function Header() {
     const role = localStorage.getItem('role')
 
     return (
-        <div className="bg-white flex flex-row justify-end h-12.5">
+        <div className="bg-white flex flex-row border-b-2 border-[#e2e2e2] justify-end h-12.5">
 
             <div>
                 <h1>{name}</h1>

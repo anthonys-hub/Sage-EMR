@@ -20,19 +20,20 @@ router.get('/:id', authMiddleware, async (req, res) => {
 )
 
 router.get('/', authMiddleware, async (req, res) => {
-
     try {
-        const result = await pool.query('SELECT * FROM appointments')
+        const { date } = req.query
+        const result = await pool.query(
+            'SELECT appointments.*, patients.first_name, patients.last_name, cases.description FROM appointments JOIN patients ON appointments.patient_id = patients.patient_id JOIN cases ON appointments.case_id = cases.case_id WHERE appointments.appointment_date = $1',
+            [date]
+        )
         const appointment = result.rows
         return res.status(200).json(appointment)
     }
-
     catch (err) {
         console.log(err)
         return res.status(500).json({ message: 'Appointment not found!' })
     }
-}
-)
+})
 
 
 router.post('/', authMiddleware, async (req, res) => {

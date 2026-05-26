@@ -16,8 +16,8 @@ import Header from "./Header";
 
 export default function Sidebar() {
     return (
-        <div className="flex  h-screen bg-[#f8fafc]">
-            <div className="bg-white flex flex-col gap-3 mt-2 w-1/8">
+        <div className="flex h-screen bg-[#f8faf7]">
+            <div className="bg-[white] flex border-r-2 border-[#e2e2e2] flex-col gap-3 mt-2 w-1/8">
                 <h1 className="text-[#7AAE9E] font-bold text-3xl ml-5 mt-2 flex gap-3">
                     <RiHealthBookFill className="mt-1" />Sage EMR
                 </h1>

@@ -36,7 +36,7 @@ router.post('/login', async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password_hash)
         if (isMatch) {
             const token = jwt.sign({ id: user.user_id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
-            return res.status(200).json({ token, first: user.first_name, last: user.last_name })
+            return res.status(200).json({ token, first: user.first_name, last: user.last_name, role: user.role })
         }
         else {
             return res.status(400).json({ message: 'Login failed: invalid credentials' })
