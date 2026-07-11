@@ -8,7 +8,10 @@ export default function Schedule() {
     const [contextMenu, setContextMenu] = useState(null)
     const [showStatusMenu, setShowStatusMenu] = useState(false)
 
-
+    const [selectedDate, setSelectedDate] = useState(() => {
+        const today = new Date()
+        return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+    })
 
     const timeSlots = ['8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM']
 
@@ -74,10 +77,8 @@ export default function Schedule() {
 
 
     function fetchAppointments() {
-        const today = new Date()
-        const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
-        console.log(today)
-        fetch(`${import.meta.env.VITE_API_URL}/api/appointments?date=${dateStr}`, {
+        fetch(`${import.meta.env.VITE_API_URL}/api/appointments?date=${selectedDate}`, {
+
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -93,10 +94,30 @@ export default function Schedule() {
     useEffect(() => {
         fetchDoctors()
         fetchAppointments()
-    }, [])
+    }, [selectedDate])
 
 
 
+    function getStatusColor(status) {
+        if (status === 'arrived') {
+            return 'bg-yellow-100'
+        }
+        else if (status === 'no_call_no_show') {
+            return 'bg-blue-900'
+        }
+        else if (status === 'cancelled') {
+            return 'bg-red-900'
+        }
+        else if (status === 'cancelled_without_notice') {
+            return 'bg-red-400'
+        }
+        else if (status === 'rescheduled') {
+            return 'bg-orange-800'
+        }
+        else if (status === 'scheduled') {
+            return 'bg-[#eff1f0]'
+        }
+    }
 
 
 
@@ -110,7 +131,12 @@ export default function Schedule() {
 
                 <div className="border border-[#e2e2e2] rounded-t-lg h-full flex flex-col ">
                     <h1 className="text-3xl text-[#7AAE9E] font-bold"> Daily Multi Schedule</h1>
-                    <p>Wednesday, May 25, 2026</p>
+                    <input
+                        type="date"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        className="border border-gray-300 rounded p-1 text-sm"
+                    />
                 </div>
 
 
@@ -155,7 +181,8 @@ export default function Schedule() {
                                     const appt = slotAppointments.find(a => a.doctor_id === doctor.doctor_id)
                                     return (
                                         <div key={doctor.doctor_id} className=" w-50 min-h-16 border-r border-l border-gray-200">
-                                            {appt ? <div className="bg-[#eff1f0] border-l-4 border-[#7AAE9E] rounded p-2 shadow-sm" onContextMenu={(e) => onContextMenu(e, appt)}>
+                                            {appt ? <div className={`${getStatusColor(appt.status)} border-l-4 border-[#7AAE9E] rounded p-2 shadow-sm`}
+                                                onContextMenu={(e) => onContextMenu(e, appt)}>
                                                 <p className="font-bold text-[#7AAE9E] text-sm">{appt.first_name} {appt.last_name} <span className="text-black font-semibold ml-10 ">{appt.status}</span></p>
                                                 <p className="text-xs">{appt.description}</p>
                                                 <p className="text-xs text-gray-500">{formatTime(appt.appointment_starttime)} - {formatTime(appt.appointment_endtime)}</p>
