@@ -20,6 +20,37 @@ router.get('/:id', authMiddleware, async (req, res) => {
 }
 )
 
+router.get('/', authMiddleware, async (req, res) => {
+    const { patient_id } = req.query
+
+    try {
+        let query = `
+            SELECT visits.visit_id, visits.visit_date, visits.vitals, visits.notes, 
+                   visits.case_id, visits.doctor_id, visits.patient_id,
+                   users.first_name AS doctor_first_name, users.last_name AS doctor_last_name
+            FROM visits
+            JOIN users ON visits.doctor_id = users.user_id
+        `
+
+        const values = []
+
+        if (patient_id) {
+            query += ' WHERE visits.patient_id = $1'
+            values.push(patient_id)
+        }
+
+        query += ' ORDER BY visits.visit_date DESC'
+
+        const result = await pool.query(query, values)
+        return res.status(200).json(result.rows)
+    }
+
+    catch (err) {
+        console.log(err)
+        return res.status(500).json({ message: 'Error fetching visits' })
+    }
+})
+
 router.post('/', authMiddleware, requireDoctorOrAdmin, async (req, res) => {
     try {
         const { appointment_id, visit_date, vitals, notes, case_id, doctor_id, patient_id } = req.body

@@ -4,6 +4,55 @@ const pool = require('../db/db.js')
 const requireAdmin = require('../middleware/requireAdmin.js')
 const authMiddleware = require('../middleware/authMiddleware.js')
 
+
+router.get('/', authMiddleware, async (req, res) => {
+    const { first_name, last_name, dob, patient_id } = req.query
+    const conditions = []
+    const values = []
+
+    if (first_name) {
+        conditions.push(`first_name = $${values.length + 1}`)
+        values.push(first_name)
+    }
+
+
+    if (last_name) {
+        conditions.push(`last_name = $${values.length + 1}`)
+        values.push(last_name)
+    }
+
+    if (dob) {
+        conditions.push(`dob = $${values.length + 1}`)
+        values.push(dob)
+    }
+
+    if (patient_id) {
+        conditions.push(`patient_id = $${values.length + 1}`)
+        values.push(patient_id)
+    }
+
+    const whereClause = conditions.join(' AND ')
+
+    let query = 'SELECT patient_id, first_name, last_name, dob FROM patients'
+
+    if (whereClause) {
+        query += ' WHERE ' + whereClause
+    }
+
+    try {
+        const result = await pool.query(query, values)
+        return res.status(200).json(result.rows)
+    }
+
+    catch (err) {
+        console.log(err)
+        return res.status(500).json({ message: 'Error searching patients' })
+    }
+
+
+
+})
+
 router.get('/:id', authMiddleware, async (req, res) => {
 
     try {
