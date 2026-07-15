@@ -10,6 +10,7 @@ const doctors = require('./routes/doctors.js')
 const cases = require('./routes/cases.js')
 const insurances = require('./routes/insurances.js')
 const visits = require('./routes/visits.js')
+const waitlist = require('./routes/waitlist.js')
 
 dotenv.config()
 
@@ -27,6 +28,7 @@ app.use('/api/doctors', doctors)
 app.use('/api/cases', cases)
 app.use('/api/insurances', insurances)
 app.use('/api/visits', visits)
+app.use('/api/waitlist', waitlist)
 
 
 

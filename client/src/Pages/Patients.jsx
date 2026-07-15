@@ -130,6 +130,27 @@ export default function Patients() {
             .catch(err => console.log(err))
     }
 
+    function addToWaitlist() {
+        fetch(`${import.meta.env.VITE_API_URL}/api/waitlist`, {
+            method: 'POST',
+            cache: 'no-store',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({ patient_id: selectedPatient.patient_id })
+        })
+            .then(res => res.json())
+            .then(data => {
+
+
+
+            })
+            .catch(err => console.log(err))
+    }
+
+
+
 
     return (
         <div className="max-w-6xl mx-auto px-6 mt-10" onClick={() => setContextMenu({ visible: false, x: 0, y: 0, patient: null })}>
@@ -346,9 +367,12 @@ export default function Patients() {
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center px-4" onClick={() => setProfileModal(false)}>
                     <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
 
-                        <h2 className="text-lg font-semibold text-[#7AAE9E] mb-1">
-                            {selectedPatient.first_name} {selectedPatient.last_name}
-                        </h2>
+                        <div className=" flex justify-between items-start">
+                            <h2 className="text-lg font-semibold text-[#7AAE9E] mb-1">
+                                {selectedPatient.first_name} {selectedPatient.last_name}
+                            </h2>
+                            <button onClick={addToWaitlist} className="bg-[#7AAE9E] text-white px-3 py-1 rounded-lg">Add to Waitlist</button>
+                        </div>
                         <p className="text-sm text-gray-500 mb-4">Patient ID: {selectedPatient.patient_id}</p>
 
                         <div className="flex gap-4 border-b border-gray-200 mb-4">

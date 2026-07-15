@@ -7,6 +7,7 @@ export default function Schedule() {
     const [doctors, setDoctors] = useState([])
     const [contextMenu, setContextMenu] = useState(null)
     const [showStatusMenu, setShowStatusMenu] = useState(false)
+    const [waitlist, setWaitlist] = useState([])
 
     const [selectedDate, setSelectedDate] = useState(() => {
         const today = new Date()
@@ -91,10 +92,7 @@ export default function Schedule() {
     }
 
 
-    useEffect(() => {
-        fetchDoctors()
-        fetchAppointments()
-    }, [selectedDate])
+
 
 
 
@@ -120,6 +118,25 @@ export default function Schedule() {
     }
 
 
+    function fetchWaitlist() {
+        fetch(`${import.meta.env.VITE_API_URL}/api/waitlist`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                setWaitlist(data)
+            })
+    }
+
+    useEffect(() => {
+        fetchWaitlist()
+        fetchDoctors()
+        fetchAppointments()
+    }, [selectedDate])
+
 
     return (
 
@@ -130,7 +147,7 @@ export default function Schedule() {
             <div className="bg-white rounded-t-lg border-[#e2e2e2] max-w-290 w-full h-200 flex flex-col">
 
                 <div className="border border-[#e2e2e2] rounded-t-lg h-full flex flex-col ">
-                    <h1 className="text-3xl text-[#7AAE9E] font-bold"> Daily Multi Schedule</h1>
+                    <h1 className="text-3xl ml-2 text-[#7AAE9E] font-bold"> Daily Multi Schedule</h1>
                     <input
                         type="date"
                         value={selectedDate}
@@ -203,10 +220,23 @@ export default function Schedule() {
             </div>
 
 
-            {/* Unsigned visits and wait list */}
-            <div className="bg-blue-500 max-w-100 w-full h-200">
-                <h1>wait list</h1>
+            <div className="bg-[#7AAE9E] max-w-150 w-full h-200 rounded-t-lg border-[#e2e2e2]">
+                <h1 className="text-3xl mt-3 text-white font-bold text-center"> Wait List</h1>
 
+
+
+                <div className="">
+
+
+                    {waitlist.map((entry) => (
+                        <div key={entry.waitlist_id} className="border-l-4 border-[#7AAE9E] bg-gray-50 rounded-lg p-3 mb-3">
+                            <p className="font-medium">{entry.patient_first_name} {entry.patient_last_name}</p>
+                            <p className="text-sm text-gray-600">{entry.reason}</p>
+                        </div>
+                    ))}
+
+
+                </div>
 
             </div>
 
