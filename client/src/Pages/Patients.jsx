@@ -443,6 +443,8 @@ export default function Patients() {
         </div>
       )}
 
+      {showWaitlistModal()}
+
       {profileModal && selectedPatient && (
         <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center px-4"
