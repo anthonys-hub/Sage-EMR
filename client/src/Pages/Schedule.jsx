@@ -1,6 +1,8 @@
 import React, { use } from "react";
 import { useEffect } from "react"
 import { useState } from "react"
+import { FaTrashAlt } from "react-icons/fa";
+
 
 export default function Schedule() {
     const [appointments, setAppointments] = useState([])
@@ -131,6 +133,23 @@ export default function Schedule() {
             })
     }
 
+
+    function removeFromWaitlist(waitlistId) {
+        fetch(`${import.meta.env.VITE_API_URL}/api/waitlist/${waitlistId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        })
+            .then(data => {
+                fetchWaitlist()
+            })
+            .catch(err => console.log(err))
+
+    }
+
+
+
     useEffect(() => {
         fetchWaitlist()
         fetchDoctors()
@@ -229,9 +248,18 @@ export default function Schedule() {
 
 
                     {waitlist.map((entry) => (
-                        <div key={entry.waitlist_id} className="border-l-4 border-[#7AAE9E] bg-gray-50 rounded-lg p-3 mb-3">
-                            <p className="font-medium">{entry.patient_first_name} {entry.patient_last_name}</p>
-                            <p className="text-sm text-gray-600">{entry.reason}</p>
+                        <div key={entry.waitlist_id} className="border border-[#7AAE9E] flex bg-gray-50 justify-between mt-1 ml-2 w-145 rounded-lg p-3 ">
+
+
+                            <div className="">
+                                <p className="font-medium">{entry.patient_first_name} {entry.patient_last_name}</p>
+                                <p className="text-sm text-gray-600">{entry.reason}</p>
+                                <p className="text-sm text-gray-600">Prefers: Dr {entry.doctor_first_name} {entry.doctor_last_name}</p>
+                            </div>
+
+                            <div className="mt-5 text-[#7AAE9E] text-2xl">
+                                <FaTrashAlt />
+                            </div>
                         </div>
                     ))}
 
