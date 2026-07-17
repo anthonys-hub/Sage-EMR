@@ -16,6 +16,11 @@ export default function Schedule() {
     const [newAppointment, setNewAppointment] = useState(false);
     const [patients, setPatients] = useState([]);
     const [appointmentPatient, setAppointmentPatient] = useState(null);
+    const [cases, setCases] = useState([]);
+    const [selectedCase, setSelectedCase] = useState(null);
+    const [appointmentSlot, setAppointmentSlot] = useState(null);
+    const [appointmentDoctor, setAppointmentDoctor] = useState(null);
+    const [patientSearch, setPatientSearch] = useState("");
 
     const [selectedDate, setSelectedDate] = useState(() => {
         const today = new Date();
@@ -34,6 +39,34 @@ export default function Schedule() {
         "4:00 PM",
         "5:00 PM",
     ];
+
+    const slotTo24Hour = {
+        "8:00 AM": "08:00:00",
+        "9:00 AM": "09:00:00",
+        "10:00 AM": "10:00:00",
+        "11:00 AM": "11:00:00",
+        "12:00 PM": "12:00:00",
+        "1:00 PM": "13:00:00",
+        "2:00 PM": "14:00:00",
+        "3:00 PM": "15:00:00",
+        "4:00 PM": "16:00:00",
+        "5:00 PM": "17:00:00",
+    };
+
+    const slotToEndTime = {
+        "8:00 AM": "09:00:00",
+        "9:00 AM": "10:00:00",
+        "10:00 AM": "11:00:00",
+        "11:00 AM": "12:00:00",
+        "12:00 PM": "13:00:00",
+        "1:00 PM": "14:00:00",
+        "2:00 PM": "15:00:00",
+        "3:00 PM": "16:00:00",
+        "4:00 PM": "17:00:00",
+        "5:00 PM": "18:00:00",
+    };
+
+
 
     function formatDate(dateString) {
         const date = new Date(dateString);
@@ -164,6 +197,48 @@ export default function Schedule() {
             });
     }
 
+    function addAppointment() {
+        if (!appointmentPatient || !selectedCase || !appointmentSlot) {
+            alert("Please select a patient, case, and time.");
+            return;
+        }
+
+        fetch(`${import.meta.env.VITE_API_URL}/api/appointments`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            body: JSON.stringify({
+                appointment_date: selectedDate,
+                appointment_starttime: slotTo24Hour[appointmentSlot],
+                appointment_endtime: slotToEndTime[appointmentSlot],
+                status: "scheduled",
+                patient_id: appointmentPatient,
+                case_id: selectedCase,
+                doctor_id: appointmentDoctor.doctor_id,
+            }),
+        })
+            .then((res) => {
+                if (!res.ok) {
+                    throw new Error("Failed to create appointment");
+                }
+                return res.json();
+            })
+            .then(() => {
+                fetchAppointments();
+                setNewAppointment(false);
+                setAppointmentPatient(null);
+                setSelectedCase(null);
+                setPatientSearch("");
+            })
+            .catch((err) => {
+                console.log(err);
+                alert("Something went wrong creating the appointment.");
+            });
+    }
+
+
     function getStatusColor(status) {
         if (status === "arrived") {
             return "bg-yellow-100";
@@ -206,6 +281,22 @@ export default function Schedule() {
             .catch((err) => console.log(err));
     }
 
+
+    function deleteAppointment(appointmentId) {
+        fetch(`${import.meta.env.VITE_API_URL}/api/appointments/${appointmentId}`, {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        })
+            .then(() => {
+                fetchAppointments();
+                setContextMenu(null);
+            })
+            .catch((err) => console.log(err));
+    }
+
+
     useEffect(() => {
         fetch(`${import.meta.env.VITE_API_URL}/api/patients`, {
             method: "GET",
@@ -220,6 +311,31 @@ export default function Schedule() {
             })
             .catch((err) => console.log(err));
     }, []);
+
+
+
+
+
+
+    useEffect(() => {
+        if (!appointmentPatient) return;
+        fetch(`${import.meta.env.VITE_API_URL}/api/cases?patient_id=${appointmentPatient}`, {
+            method: "GET",
+            cache: "no-store",
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                setCases(data);
+            })
+            .catch((err) => console.log(err));
+    }, [appointmentPatient]);
+
+
+
+
 
     useEffect(() => {
         fetchWaitlist();
@@ -429,6 +545,12 @@ export default function Schedule() {
                                         >
                                             Cancelled Without Notice
                                         </div>
+                                        <div
+                                            onClick={() => deleteAppointment(contextMenu.appointment.appointment_id)}
+                                            className="hover:bg-gray-100 px-4 py-2 cursor-pointer text-sm"
+                                        >
+                                            <p>Delete Appointment</p>
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -437,10 +559,11 @@ export default function Schedule() {
                         <div className="hover:bg-gray-100 px-4 py-2 cursor-pointer text-sm">
                             <p
                                 onClick={() => {
-                                    setNewAppointment(true)
-                                    setContextMenu(null)
+                                    setAppointmentSlot(contextMenu.slot);
+                                    setAppointmentDoctor(contextMenu.doctor);
+                                    setNewAppointment(true);
+                                    setContextMenu(null);
                                 }}
-
                             >New Appointment</p>
                         </div>
                     )}
@@ -450,17 +573,82 @@ export default function Schedule() {
             {newAppointment && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center px-4">
                     <div className="bg-white rounded-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
-                        <select value={appointmentPatient} onChange={(e) => setAppointmentPatient(e.target.value)}>
-                            {patients.map((patient) => (
-                                <option key={patient.patient_id} value={patient.patient_id}>
-                                    {patient.first_name} {patient.last_name}
+
+                        <input
+                            type="text"
+                            placeholder="Search patient by name..."
+                            value={patientSearch}
+                            onChange={(e) => {
+                                setPatientSearch(e.target.value);
+                                setAppointmentPatient(null);
+                            }}
+                            className="border border-gray-300 rounded-lg px-2 py-1 w-full mb-2"
+                        />
+                        {patientSearch && !appointmentPatient && (
+                            <div className="border border-gray-200 rounded-lg max-h-40 overflow-y-auto mb-4">
+                                {patients
+                                    .filter((patient) =>
+                                        `${patient.first_name} ${patient.last_name}`
+                                            .toLowerCase()
+                                            .includes(patientSearch.toLowerCase())
+                                    )
+                                    .map((patient) => (
+                                        <div
+                                            key={patient.patient_id}
+                                            onClick={() => {
+                                                setAppointmentPatient(patient.patient_id);
+                                                setPatientSearch(`${patient.first_name} ${patient.last_name}`);
+                                            }}
+                                            className="px-2 py-1 hover:bg-gray-100 cursor-pointer"
+                                        >
+                                            {patient.first_name} {patient.last_name}
+                                        </div>
+                                    ))}
+                            </div>
+                        )}
+
+                        <select
+                            value={selectedCase}
+                            onChange={(e) => setSelectedCase(e.target.value)}
+                            className="border border-gray-300 rounded-lg px-2 py-1 w-full mb-4"
+                        >
+                            <option value="">Select a case</option>
+                            {cases.map((case_) => (
+                                <option key={case_.case_id} value={case_.case_id}>
+                                    {case_.description}
                                 </option>
                             ))}
                         </select>
+
+                        <select
+                            value={appointmentSlot}
+                            onChange={(e) => setAppointmentSlot(e.target.value)}
+                            className="border border-gray-300 rounded-lg px-2 py-1 w-full mb-4"
+                        >
+                            {timeSlots.map((slot) => (
+                                <option key={slot} value={slot}>
+                                    {slot}
+                                </option>
+                            ))}
+                        </select>
+
+                        <div className="flex justify-end gap-3 mt-5">
+                            <button
+                                onClick={() => setNewAppointment(false)}
+                                className="px-3 py-1 rounded-lg border border-gray-300 text-gray-600"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={addAppointment}
+                                className="bg-[#7AAE9E] text-white px-3 py-1 rounded-lg"
+                            >
+                                Submit
+                            </button>
+                        </div>
                     </div>
                 </div>
-            )
-            }
+            )}
 
 
 

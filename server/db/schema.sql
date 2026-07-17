@@ -31,7 +31,7 @@ CREATE TABLE patients (
     patient_id SERIAL PRIMARY KEY,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
-    email TEXT UNIQUE  NOT NULL ,
+    email TEXT UNIQUE,
     dob DATE NOT NULL,
     Address VARCHAR(40) NOT NULL,
     mobile_phone VARCHAR(20) NOT NULL,
@@ -40,7 +40,6 @@ CREATE TABLE patients (
     title VARCHAR(10) NOT NULL,
     social_security VARCHAR(11) NOT NULL,
     emergency_contact VARCHAR(100) NOT NULL
-
 );
 
 CREATE TABLE cases (

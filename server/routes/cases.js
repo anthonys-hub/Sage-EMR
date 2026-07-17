@@ -20,6 +20,26 @@ router.get('/:id', authMiddleware, async (req, res) => {
 }
 )
 
+router.get('/', authMiddleware, async (req, res) => {
+    try {
+        const { patient_id } = req.query
+        const result = await pool.query(
+            'SELECT case_id, description, referring_dr, patient_id FROM cases WHERE patient_id = $1',
+            [patient_id]
+        )
+        const cases = result.rows
+        return res.status(200).json(cases)
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).json({ message: 'Cases not found!' })
+    }
+})
+
+
+
+
+
 router.post('/', authMiddleware, async (req, res) => {
     try {
         const { description, referring_dr, patient_id } = req.body

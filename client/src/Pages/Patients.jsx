@@ -11,6 +11,10 @@ export default function Patients() {
     const [reason, setReason] = useState("");
     const [preferredDoctor, setPreferredDoctor] = useState("");
     const [doctors, setDoctors] = useState([]);
+    const [showCaseModal, setShowCaseModal] = useState(false);
+    const [caseDescription, setCaseDescription] = useState("");
+    const [referringDr, setReferringDr] = useState("");
+    const [patientCases, setPatientCases] = useState([]);
 
     const [newPatient, setNewPatient] = useState({
         first_name: "",
@@ -125,6 +129,22 @@ export default function Patients() {
                 setVisits(data);
             })
             .catch((err) => console.log(err));
+
+        fetch(
+            `${import.meta.env.VITE_API_URL}/api/cases?patient_id=${patient.patient_id}`,
+            {
+                method: "GET",
+                cache: "no-store",
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            },
+        )
+            .then((res) => res.json())
+            .then((data) => {
+                setPatientCases(data);
+            })
+            .catch((err) => console.log(err));
     }
 
     function updatePatient() {
@@ -182,6 +202,35 @@ export default function Patients() {
             })
             .catch((err) => console.log(err));
     }
+
+    function addCase() {
+        if (caseDescription === "") {
+            return;
+        }
+
+        fetch(`${import.meta.env.VITE_API_URL}/api/cases`, {
+            method: "POST",
+            cache: "no-store",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            body: JSON.stringify({
+                description: caseDescription,
+                referring_dr: referringDr,
+                patient_id: selectedPatient.patient_id,
+            }),
+        })
+            .then((res) => res.json())
+            .then(() => {
+                setShowCaseModal(false);
+                setCaseDescription("");
+                setReferringDr("");
+            })
+            .catch((err) => console.log(err));
+    }
+
+
 
     useEffect(() => {
         fetch(`${import.meta.env.VITE_API_URL}/api/doctors`, {
@@ -310,144 +359,36 @@ export default function Patients() {
                 </div>
             )}
 
-            {showModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center px-4">
+            {showCaseModal && (
+                <div className="fixed z-50 inset-0 bg-black/50 flex items-center justify-center px-4">
                     <div className="bg-white rounded-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
                         <h2 className="text-lg font-semibold text-[#7AAE9E] mb-4">
-                            Add Patient
+                            New Case
                         </h2>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <input
-                                type="text"
-                                value={newPatient.first_name}
-                                onChange={(e) =>
-                                    setNewPatient({ ...newPatient, first_name: e.target.value })
-                                }
-                                placeholder="First Name"
-                                className="border border-gray-300 rounded-lg px-2 py-1"
-                            />
-
-                            <input
-                                type="text"
-                                value={newPatient.last_name}
-                                onChange={(e) =>
-                                    setNewPatient({ ...newPatient, last_name: e.target.value })
-                                }
-                                placeholder="Last Name"
-                                className="border border-gray-300 rounded-lg px-2 py-1"
-                            />
-
-                            <input
-                                type="email"
-                                value={newPatient.email}
-                                onChange={(e) =>
-                                    setNewPatient({ ...newPatient, email: e.target.value })
-                                }
-                                placeholder="Email"
-                                className="border border-gray-300 rounded-lg px-2 py-1"
-                            />
-
-                            <input
-                                type="date"
-                                value={newPatient.dob}
-                                onChange={(e) =>
-                                    setNewPatient({ ...newPatient, dob: e.target.value })
-                                }
-                                placeholder="Date of Birth"
-                                className="border border-gray-300 rounded-lg px-2 py-1"
-                            />
-
-                            <input
-                                type="text"
-                                value={newPatient.address}
-                                onChange={(e) =>
-                                    setNewPatient({ ...newPatient, address: e.target.value })
-                                }
-                                placeholder="Address"
-                                className="border border-gray-300 rounded-lg px-2 py-1 sm:col-span-2"
-                            />
-
-                            <input
-                                type="text"
-                                value={newPatient.mobile_phone}
-                                onChange={(e) =>
-                                    setNewPatient({ ...newPatient, mobile_phone: e.target.value })
-                                }
-                                placeholder="Mobile Phone"
-                                className="border border-gray-300 rounded-lg px-2 py-1"
-                            />
-
-                            <input
-                                type="text"
-                                value={newPatient.home_phone}
-                                onChange={(e) =>
-                                    setNewPatient({ ...newPatient, home_phone: e.target.value })
-                                }
-                                placeholder="Home Phone"
-                                className="border border-gray-300 rounded-lg px-2 py-1"
-                            />
-
-                            <input
-                                type="text"
-                                value={newPatient.marriage_status}
-                                onChange={(e) =>
-                                    setNewPatient({
-                                        ...newPatient,
-                                        marriage_status: e.target.value,
-                                    })
-                                }
-                                placeholder="Marriage Status"
-                                className="border border-gray-300 rounded-lg px-2 py-1"
-                            />
-
-                            <input
-                                type="text"
-                                value={newPatient.title}
-                                onChange={(e) =>
-                                    setNewPatient({ ...newPatient, title: e.target.value })
-                                }
-                                placeholder="Title"
-                                className="border border-gray-300 rounded-lg px-2 py-1"
-                            />
-
-                            <input
-                                type="text"
-                                value={newPatient.social_security}
-                                onChange={(e) =>
-                                    setNewPatient({
-                                        ...newPatient,
-                                        social_security: e.target.value,
-                                    })
-                                }
-                                placeholder="Social Security"
-                                className="border border-gray-300 rounded-lg px-2 py-1"
-                            />
-
-                            <input
-                                type="text"
-                                value={newPatient.emergency_contact}
-                                onChange={(e) =>
-                                    setNewPatient({
-                                        ...newPatient,
-                                        emergency_contact: e.target.value,
-                                    })
-                                }
-                                placeholder="Emergency Contact"
-                                className="border border-gray-300 rounded-lg px-2 py-1 sm:col-span-2"
-                            />
-                        </div>
-
-                        <div className="flex justify-end gap-3 mt-5">
+                        <input
+                            className="border w-full rounded-lg px-2 py-1 mb-3"
+                            type="text"
+                            placeholder="Description"
+                            value={caseDescription}
+                            onChange={(e) => setCaseDescription(e.target.value)}
+                        />
+                        <input
+                            className="border w-full rounded-lg px-2 py-1 mb-3"
+                            type="text"
+                            placeholder="Referring Doctor"
+                            value={referringDr}
+                            onChange={(e) => setReferringDr(e.target.value)}
+                        />
+                        <div className="flex justify-end gap-3">
                             <button
-                                onClick={() => setShowModal(false)}
+                                onClick={() => setShowCaseModal(false)}
                                 className="px-3 py-1 rounded-lg border border-gray-300 text-gray-600"
                             >
                                 Cancel
                             </button>
                             <button
-                                onClick={addPatient}
                                 className="bg-[#7AAE9E] text-white px-3 py-1 rounded-lg"
+                                onClick={addCase}
                             >
                                 Submit
                             </button>
@@ -455,7 +396,6 @@ export default function Patients() {
                     </div>
                 </div>
             )}
-
             {showWaitlistModal && (
                 <div className="fixed z-50 inset-0 bg-black/50 flex items-center justify-center px-4">
                     <div className="bg-white rounded-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
@@ -502,16 +442,24 @@ export default function Patients() {
                         className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className=" flex justify-between items-start">
+                        <div className="flex justify-between items-start">
                             <h2 className="text-lg font-semibold text-[#7AAE9E] mb-1">
                                 {selectedPatient.first_name} {selectedPatient.last_name}
                             </h2>
-                            <button
-                                onClick={() => setShowWaitlistModal(true)}
-                                className="bg-[#7AAE9E] text-white px-3 py-1 rounded-lg"
-                            >
-                                Add to Waitlist
-                            </button>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => setShowCaseModal(true)}
+                                    className="bg-[#7AAE9E] text-white px-3 py-1 rounded-lg"
+                                >
+                                    Add Case
+                                </button>
+                                <button
+                                    onClick={() => setShowWaitlistModal(true)}
+                                    className="bg-[#7AAE9E] text-white px-3 py-1 rounded-lg"
+                                >
+                                    Add to Waitlist
+                                </button>
+                            </div>
                         </div>
                         <p className="text-sm text-gray-500 mb-4">
                             Patient ID: {selectedPatient.patient_id}
@@ -524,6 +472,13 @@ export default function Patients() {
                             >
                                 Personal Information
                             </button>
+                            <button
+                                onClick={() => setActiveTab("cases")}
+                                className={`pb-2 px-1 ${activeTab === "cases" ? "border-b-2 border-[#7AAE9E] text-[#7AAE9E] font-semibold" : "text-gray-500"}`}
+                            >
+                                Cases
+                            </button>
+
                             <button
                                 onClick={() => setActiveTab("visits")}
                                 className={`pb-2 px-1 ${activeTab === "visits" ? "border-b-2 border-[#7AAE9E] text-[#7AAE9E] font-semibold" : "text-gray-500"}`}
@@ -699,6 +654,29 @@ export default function Patients() {
                                 </div>
                             </div>
                         )}
+
+                        {activeTab === "cases" && (
+                            <div>
+                                {patientCases.length === 0 && (
+                                    <p className="text-gray-500">No cases on file.</p>
+                                )}
+
+                                {patientCases.map((case_) => (
+                                    <div
+                                        key={case_.case_id}
+                                        className="border-l-4 border-[#7AAE9E] bg-gray-50 rounded-lg p-3 mb-3"
+                                    >
+                                        <p className="text-sm text-[#7AAE9E] font-semibold">
+                                            {case_.description}
+                                        </p>
+                                        <p className="text-sm text-gray-600 mt-1">
+                                            Referring Dr: {case_.referring_dr}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
 
                         {activeTab === "visits" && (
                             <div>
