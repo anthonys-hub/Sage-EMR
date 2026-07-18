@@ -9,6 +9,14 @@ import { CiSettings } from "react-icons/ci";
 import Header from "./Header";
 
 export default function Sidebar() {
+  const getLinkClass = ({ isActive }) => {
+    const baseClasses = "flex flex-row items-center gap-3 justify-center cursor-pointer";
+
+    return isActive
+      ? `${baseClasses} bg-[#7AAE9E] text-white py-2 `
+      : `${baseClasses} hover:bg-gray-200 py-2`;
+  };
+
   return (
     <div className="flex h-screen bg-[#f8faf7]">
       <div className="bg-[white] flex border-r-2 border-[#e2e2e2] flex-col gap-3 mt-2 shrink-0 w-64">
@@ -17,38 +25,23 @@ export default function Sidebar() {
           Sage EMR
         </h1>
 
-        <div className="text-semibold text-[20px] mt-5 flex  flex-col gap-5 text-gray-600 text-center">
-          <NavLink
-            to="/schedule"
-            className="flex flex-row items-center gap-3 justify-center cursor-pointer hover:bg-gray-200"
-          >
+        <div className="text-semibold  font-quicksand text-[20px] mt-5 flex flex-col  text-[#7AAE9E] text-center">
+          <NavLink to="/schedule" className={getLinkClass}>
             <GrSchedule />
             <p>Schedule</p>
           </NavLink>
-          <NavLink
-            to="/patients"
-            className="flex flex-row items-center gap-3 justify-center cursor-pointer hover:bg-gray-200"
-          >
+          <NavLink to="/patients" className={getLinkClass}>
             <GoPersonFill /> <p>Patients</p>
           </NavLink>
-          <NavLink
-            to="/charts"
-            className="flex flex-row items-center gap-3 justify-center cursor-pointer hover:bg-gray-200"
-          >
+          <NavLink to="/charts" className={getLinkClass}>
             <CiMedicalClipboard />
             <p>Charts</p>
           </NavLink>
-          <NavLink
-            to="/reports"
-            className="flex flex-row items-center gap-3 justify-center cursor-pointer hover:bg-gray-200"
-          >
+          <NavLink to="/reports" className={getLinkClass}>
             <IoIosStats />
             <p>Reports</p>
           </NavLink>
-          <NavLink
-            to="/settings"
-            className="flex flex-row items-center gap-3 justify-center cursor-pointer hover:bg-gray-200"
-          >
+          <NavLink to="/settings" className={getLinkClass}>
             <CiSettings />
             <p>Settings</p>
           </NavLink>

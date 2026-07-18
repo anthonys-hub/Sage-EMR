@@ -27,11 +27,10 @@ export default function Reports() {
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto px-6 mt-10">
-      <h1 className="text-3xl text-[#7AAE9E] font-bold mb-2">Recall List</h1>
+    <div className="max-w-6xl m-3 px-6 ">
+      <h1 className="text-3xl text-[#7AAE9E] font-bold mb-2">No Next Appointment List</h1>
       <p className="text-gray-500 mb-6">
-        Patients whose last appointment has passed with nothing upcoming
-        scheduled.
+        Patients without upcoming appointments:
       </p>
 
       <table className="w-full border-collapse">

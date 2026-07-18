@@ -15,7 +15,6 @@ router.get('/', authMiddleware, async (req, res) => {
         values.push(first_name)
     }
 
-
     if (last_name) {
         conditions.push(`last_name = $${values.length + 1}`)
         values.push(last_name)
@@ -29,6 +28,11 @@ router.get('/', authMiddleware, async (req, res) => {
     if (patient_id) {
         conditions.push(`patient_id = $${values.length + 1}`)
         values.push(patient_id)
+    }
+
+    if (req.query.search) {
+        conditions.push(`(first_name ILIKE $${values.length + 1} OR last_name ILIKE $${values.length + 1})`)
+        values.push(`%${req.query.search}%`)
     }
 
     const whereClause = conditions.join(' AND ')
@@ -48,9 +52,6 @@ router.get('/', authMiddleware, async (req, res) => {
         console.log(err)
         return res.status(500).json({ message: 'Error searching patients' })
     }
-
-
-
 })
 
 router.get('/:id', authMiddleware, async (req, res) => {

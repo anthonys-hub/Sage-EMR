@@ -57,7 +57,7 @@ export default function Charts() {
     }, [])
 
     return (
-        <div className="max-w-6xl mx-auto px-6 mt-10">
+        <div className="max-w-6xl  px-6 m-3">
 
             <h1 className="text-2xl font-semibold text-[#7AAE9E] mb-6">Charts</h1>
 

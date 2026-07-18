@@ -57,12 +57,12 @@ export default function Settings() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-6 mt-10">
+    <div className="max-w-2xl  px-6 m-3">
       <h1 className="text-3xl text-[#7AAE9E] font-bold mb-6">Settings</h1>
 
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h2 className="text-lg font-semibold text-[#7AAE9E] mb-4">
-          Profile Picture
+          Set your profile picture
         </h2>
 
         <div className="flex items-center gap-6">
@@ -88,7 +88,7 @@ export default function Settings() {
             <button
               onClick={saveProfilePicture}
               disabled={!preview || saving}
-              className="bg-[#7AAE9E] text-white px-4 py-2 rounded-lg disabled:opacity-50"
+              className="bg-[#7AAE9E] text-white px-4 py-2 hover:cursor-pointer rounded-lg disabled:opacity-50"
             >
               {saving ? "Saving..." : "Save Changes"}
             </button>

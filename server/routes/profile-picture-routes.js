@@ -7,7 +7,7 @@ router.get("/me/profile-picture", authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
       "SELECT profile_picture FROM users WHERE user_id = $1",
-      [req.user.user_id],
+      [req.user.id],
     );
 
     if (result.rows.length === 0) {
@@ -31,7 +31,7 @@ router.put("/me/profile-picture", authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
       "UPDATE users SET profile_picture = $1 WHERE user_id = $2 RETURNING profile_picture",
-      [profile_picture, req.user.user_id], // adjust field name to match authMiddleware
+      [profile_picture, req.user.id], // adjust field name to match authMiddleware
     );
 
     res.json(result.rows[0]);

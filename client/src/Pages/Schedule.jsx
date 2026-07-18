@@ -21,6 +21,7 @@ export default function Schedule() {
   const [appointmentSlot, setAppointmentSlot] = useState(null);
   const [appointmentDoctor, setAppointmentDoctor] = useState(null);
   const [patientSearch, setPatientSearch] = useState("");
+  const [editingAppointmentId, setEditingAppointmentId] = useState(null);
 
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date();
@@ -93,6 +94,49 @@ export default function Schedule() {
       });
   }
 
+  function editAppointment() {
+    if (!appointmentPatient || !selectedCase || !appointmentSlot) {
+      alert("Please select a patient, case, and time.");
+      return;
+    }
+
+    fetch(
+      `${import.meta.env.VITE_API_URL}/api/appointments/${editingAppointmentId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          appointment_date: selectedDate,
+          appointment_starttime: slotTo24Hour[appointmentSlot],
+          appointment_endtime: slotToEndTime[appointmentSlot],
+          status: "scheduled",
+          patient_id: appointmentPatient,
+          case_id: selectedCase,
+          doctor_id: appointmentDoctor.doctor_id,
+        }),
+      },
+    )
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to update appointment");
+        return res.json();
+      })
+      .then(() => {
+        fetchAppointments();
+        setNewAppointment(false);
+        setEditingAppointmentId(null);
+        setAppointmentPatient(null);
+        setSelectedCase(null);
+        setPatientSearch("");
+      })
+      .catch((err) => {
+        console.log(err);
+        alert("Something went wrong updating the appointment.");
+      });
+  }
+
   function updatePatient() {
     fetch(
       `${import.meta.env.VITE_API_URL}/api/patients/${selectedPatient.patient_id}`,
@@ -130,10 +174,14 @@ export default function Schedule() {
     const parts = strTime.split(":");
     const hour = parseInt(parts[0]);
 
-    if (hour > 12) {
-      return hour - 12 + ":" + parts[1] + " " + "PM";
+    if (hour === 0) {
+      return "12:" + parts[1] + " AM";
+    } else if (hour === 12) {
+      return "12:" + parts[1] + " PM";
+    } else if (hour > 12) {
+      return hour - 12 + ":" + parts[1] + " PM";
     } else {
-      return hour + ":" + parts[1] + " " + "AM";
+      return hour + ":" + parts[1] + " AM";
     }
   }
 
@@ -340,7 +388,7 @@ export default function Schedule() {
       <div className="bg-white rounded-t-lg border-[#e2e2e2] flex-1 h-200 flex flex-col">
         {" "}
         <div className="border border-[#e2e2e2] rounded-t-lg h-full flex flex-col ">
-          <h1 className="text-3xl ml-2 text-[#7AAE9E] font-bold">
+          <h1 className="text-3xl ml-2 py-1 text-[#7AAE9E] font-quicksand font-bold">
             {" "}
             Daily Multi Schedule
           </h1>
@@ -427,8 +475,8 @@ export default function Schedule() {
         </div>
       </div>
 
-      <div className="bg-[#7AAE9E] max-w-150 w-full h-200 rounded-t-lg border-[#e2e2e2]">
-        <h1 className="text-3xl mt-3 text-white font-bold text-center">
+      <div className="bg-[#7AAE9E] max-w-150 mr-3 w-full h-200 rounded-t-lg border-[#e2e2e2]">
+        <h1 className="text-3xl font-quicksand mt-1 py-1 text-white font-bold text-center">
           {" "}
           Wait List
         </h1>
@@ -437,7 +485,7 @@ export default function Schedule() {
           {waitlist.map((entry) => (
             <div
               key={entry.waitlist_id}
-              className="border border-[#7AAE9E] flex bg-gray-50 justify-between mt-1 ml-2 w-145 rounded-lg p-3 "
+              className="border border-[#7AAE9E] flex hover:cursor-pointer bg-gray-50 justify-between mt-1 ml-2 w-145 rounded-lg p-3 "
               onClick={() => openWaitlistProfile(entry)}
             >
               <div className="">
@@ -462,6 +510,7 @@ export default function Schedule() {
           ))}
         </div>
       </div>
+
       {contextMenu && (
         <div
           style={{ position: "fixed", top: contextMenu.y, left: contextMenu.x }}
@@ -469,12 +518,63 @@ export default function Schedule() {
         >
           {contextMenu.appointment ? (
             <>
-              <div className="hover:bg-gray-100 px-4 py-2 cursor-pointer text-sm">
+              <div
+                onClick={() => {
+                  const appt = contextMenu.appointment;
+                  const doctor = doctors.find(
+                    (d) => d.doctor_id === appt.doctor_id,
+                  );
+
+                  setEditingAppointmentId(appt.appointment_id);
+                  setAppointmentPatient(appt.patient_id);
+                  setPatientSearch(`${appt.first_name} ${appt.last_name}`);
+                  setSelectedCase(appt.case_id);
+                  setAppointmentSlot(formatTime(appt.appointment_starttime));
+                  setAppointmentDoctor(doctor);
+                  setNewAppointment(true);
+                  setContextMenu(null);
+                }}
+                className="hover:bg-gray-100 px-4 py-2 cursor-pointer text-sm"
+              >
                 <p>Edit Appointment</p>
               </div>
-              <div className="hover:bg-gray-100 px-4 py-2 cursor-pointer text-sm">
+
+              <div
+                onClick={() => {
+                  const appt = contextMenu.appointment;
+                  fetch(
+                    `${import.meta.env.VITE_API_URL}/api/patients/${appt.patient_id}`,
+                    {
+                      headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                      },
+                    },
+                  )
+                    .then((res) => res.json())
+                    .then((data) => {
+                      setSelectedPatient(data);
+                      setActiveTab("info");
+                      setProfileModal(true);
+                    });
+
+                  fetch(
+                    `${import.meta.env.VITE_API_URL}/api/visits?patient_id=${appt.patient_id}`,
+                    {
+                      headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                      },
+                    },
+                  )
+                    .then((res) => res.json())
+                    .then((data) => setVisits(data));
+
+                  setContextMenu(null);
+                }}
+                className="hover:bg-gray-100 px-4 py-2 cursor-pointer text-sm"
+              >
                 <p>Edit Client</p>
               </div>
+
               <div className="hover:bg-gray-100 px-4 py-2 cursor-pointer text-sm">
                 <p>Cash Register</p>
               </div>
@@ -586,6 +686,10 @@ export default function Schedule() {
       {newAppointment && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center px-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <h2 className="text-lg font-semibold text-[#7AAE9E] mb-4">
+              {editingAppointmentId ? "Edit Appointment" : "New Appointment"}
+            </h2>
+
             <input
               type="text"
               placeholder="Search patient by name..."
@@ -648,13 +752,19 @@ export default function Schedule() {
 
             <div className="flex justify-end gap-3 mt-5">
               <button
-                onClick={() => setNewAppointment(false)}
+                onClick={() => {
+                  setNewAppointment(false);
+                  setEditingAppointmentId(null);
+                  setAppointmentPatient(null);
+                  setSelectedCase(null);
+                  setPatientSearch("");
+                }}
                 className="px-3 py-1 rounded-lg border border-gray-300 text-gray-600"
               >
                 Cancel
               </button>
               <button
-                onClick={addAppointment}
+                onClick={editingAppointmentId ? editAppointment : addAppointment}
                 className="bg-[#7AAE9E] text-white px-3 py-1 rounded-lg"
               >
                 Submit
