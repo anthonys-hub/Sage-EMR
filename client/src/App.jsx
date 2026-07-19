@@ -11,8 +11,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
-
 
         <Route element={<Sidebar />}>
           <Route path="/schedule" element={<Schedule />} />
@@ -23,7 +23,7 @@ function App() {
         </Route>
 
       </Routes>
-    </BrowserRouter >
+    </BrowserRouter>
   )
 }
 
