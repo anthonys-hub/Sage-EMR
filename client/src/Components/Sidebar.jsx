@@ -6,15 +6,25 @@ import { GoPersonFill } from "react-icons/go";
 import { CiMedicalClipboard } from "react-icons/ci";
 import { IoIosStats } from "react-icons/io";
 import { CiSettings } from "react-icons/ci";
+import { IoLogOutOutline } from "react-icons/io5";
 import Header from "./Header";
 
 export default function Sidebar() {
+  const navigate = useNavigate();
+
   const getLinkClass = ({ isActive }) => {
     const baseClasses = "flex flex-row items-center gap-3 justify-center cursor-pointer";
 
     return isActive
       ? `${baseClasses} bg-[#7AAE9E] text-white py-2 `
       : `${baseClasses} hover:bg-gray-200 py-2`;
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("name");
+    localStorage.removeItem("role");
+    navigate("/login");
   };
 
   return (
@@ -46,6 +56,14 @@ export default function Sidebar() {
             <p>Settings</p>
           </NavLink>
         </div>
+
+        <button
+          onClick={handleLogout}
+          className="flex flex-row items-center gap-3 justify-center cursor-pointer hover:bg-gray-200 py-2 text-[20px] font-quicksand text-[#7AAE9E] mt-auto mb-4"
+        >
+          <IoLogOutOutline />
+          <p>Logout</p>
+        </button>
       </div>
 
       <div className="flex-1 overflow-auto relative">
