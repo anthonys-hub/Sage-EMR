@@ -12,7 +12,7 @@ Try it out with the demo admin account:
 
 ```
 Email:    demo@sageemr.com
-Password: [your password]
+Password: [Demo2026!]
 ```
 
 > This is a shared demo account — data may reflect other visitors' testing. Feel free to poke around the Schedule, Patients, Charts, and Reports pages.
