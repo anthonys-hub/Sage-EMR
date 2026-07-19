@@ -17,6 +17,29 @@ Password: [your password]
 
 > This is a shared demo account — data may reflect other visitors' testing. Feel free to poke around the Schedule, Patients, Charts, and Reports pages.
 
+## Screenshots
+
+**Login**
+![Login](screenshots/sc1.png)
+
+**Daily Multi-Doctor Schedule**
+![Schedule](screenshots/sc2.png)
+
+**Patient Search**
+![Patient Search](screenshots/sc3.png)
+
+**Add Patient**
+![Add Patient](screenshots/sc4.png)
+
+**Reports — Recall List**
+![Reports](screenshots/sc5.png)
+
+**Patient Profile**
+![Patient Profile](screenshots/sc6.png)
+
+**Settings**
+![Settings](screenshots/sc7.png)
+
 ## Features
 
 - **Schedule** — daily multi-doctor calendar view with appointment creation, editing, status tracking (scheduled, arrived, cancelled, no-show, etc.), and a waitlist panel
